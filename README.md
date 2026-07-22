@@ -13,21 +13,21 @@ The lab features a 3-tier virtualized infrastructure capturing high-fidelity **M
 
 ## 🏗️ Lab Architecture & Infrastructure Specs
 
-+------------------------------------+          +-----------------------------------+
-|      Attacker (Kali Linux)         |          |    Victim Endpoint (Win11)        |
-|  - RAM: 4 GB | vCPU: 3             |          |  - RAM: 4 GB | vCPU: 2            |
-|  - Role: Reconnaissance & Attacks  |          |  - Agent: Win11-Endpoint (ID 001) |
-+-----------------+------------------+          |  - IP: 192.168.241.132            |
-|                             +-----------------+-----------------+
-|                                               |
-+-----------------------+-----------------------+
-|
-v (Sysmon Event Stream)
-+-----------------------------------+
-|    Wazuh SIEM Manager & Indexer   |
-|  - RAM: 8 GB | vCPU: 4            |
-|  - Role: Ingestion & Dashboards   |
-+-----------------------------------+
++-----------------------+       +-----------------------+
+|  Attacker (Kali)      |       | Victim (Windows 11)   |
+|  - RAM: 4GB | vCPU: 3 |       | - RAM: 4GB | vCPU: 2  |
+|  - Role: Recon        |       | - IP: 192.168.241.132 |
++-----------+-----------+       +-----------+-----------+
+            |                               |
+            | (Network Attack)              | (Sysmon Logs)
+            +---------------+---------------+
+                            |
+                            v
+              +---------------------------+
+              | Wazuh SIEM Server         |
+              | - RAM: 8GB | vCPU: 4      |
+              | - Role: Central Ingestion |
+              +---------------------------+
 
 ### 💻 Virtual Machine Allocations (VMware Workstation)
 
