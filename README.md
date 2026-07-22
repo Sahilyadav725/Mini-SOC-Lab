@@ -12,7 +12,7 @@ The lab features a 3-tier virtualized infrastructure capturing high-fidelity **M
 ---
 
 ## 🏗️ Lab Architecture & Infrastructure Specs
-
+```text
 +-----------------------+       +-----------------------+
 |  Attacker (Kali)      |       | Victim (Windows 11)   |
 |  - RAM: 4GB | vCPU: 3 |       | - RAM: 4GB | vCPU: 2  |
@@ -28,6 +28,7 @@ The lab features a 3-tier virtualized infrastructure capturing high-fidelity **M
               | - RAM: 8GB | vCPU: 4      |
               | - Role: Central Ingestion |
               +---------------------------+
+```
 
 ### 💻 Virtual Machine Allocations (VMware Workstation)
 
@@ -43,6 +44,7 @@ The lab features a 3-tier virtualized infrastructure capturing high-fidelity **M
 
 #### 3. Victim Endpoint (Windows 11 x64)
 * **RAM:** 4 GB | **Processors:** 2 | **Network:** NAT
+<img width="543" height="531" alt="Screenshot 2026-07-22 150959" src="https://github.com/user-attachments/assets/7c1b85cd-f99f-4323-a617-2528b0d47f48" />
 
 
 ---
