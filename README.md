@@ -112,3 +112,58 @@ Key Takeaways & Skills Demonstrated
 ​SIEM Operations: Setting up agent-manager telemetry pipelines and performing DQL query analysis in OpenSearch.
 ​Host Incident Response: Identifying process creation metadata (Event ID 1) for post-exploitation discovery detection.
 ​Infrastructure Engineering: Allocating and troubleshooting virtualized SOC compute and memory requirements under heavy indexing loads.
+
+## 🛡️ Phase 2: Detection Engineering & Rule Validation
+
+In this phase, custom detection capabilities were engineered inside Wazuh SIEM to detect early-stage adversary behavior on Windows 11 endpoints.
+
+---
+
+### 🎯 Objective
+Detect discovery and host reconnaissance commands in real-time using **Sysmon Event ID 1 (Process Creation)** telemetry.
+
+---
+
+### 📜 Custom Detection Rule Configuration
+- **Rule ID:** `100002`
+- **Severity Level:** `10` (High)
+- **Log Source:** Sysmon Event ID 1
+- **MITRE ATT&CK Mapping:** 
+  - **T1087** (Account Discovery)
+  - **T1033** (System Owner/User Discovery)
+
+**File Path:** `/var/ossec/etc/rules/local_rules.xml`
+
+```xml
+<!-- Custom Reconnaissance Detection Rule for Sysmon Event ID 1 -->
+<rule id="100002" level="10">
+  <if_group>sysmon_event1</if_group>
+  <field name="win.eventdata.commandLine" type="pcre2">(?i)(whoami|net\s+localgroup|systeminfo|net\s+user)</field>
+  <description>Mini-SOC: Host Reconnaissance Command Executed ($win.eventdata.commandLine)</description>
+  <mitre>
+    <id>T1087</id>
+    <id>T1033</id>
+  </mitre>
+</rule>
+```
+
+🧪 Attack Simulation
+​The following host discovery commands were executed on the target endpoint (Win11-Endpoint / 192.168.241.132):
+
+whoami
+net localgroup administrators
+systeminfo
+<img width="836" height="443" alt="image" src="https://github.com/user-attachments/assets/71249c02-95f0-4d87-842a-e5e1633d413d" />
+
+
+📊 Verification & Proof of Concept (PoC)
+​All executed commands were matched against rule 100002, producing 3 high-severity alerts on the Wazuh Dashboard.
+​Triggered Rule: 100002
+​Target Host: Win11-Endpoint
+​Captured Execution Targets: whoami.exe, net.exe, sysinfo.exe
+
+​<img width="975" height="521" alt="image" src="https://github.com/user-attachments/assets/e9ad9cca-c38d-48f9-8ef6-988333a338db" />
+
+<img width="945" height="427" alt="image" src="https://github.com/user-attachments/assets/919f3820-168d-4312-b28b-1d009efb30cc" />
+
+
