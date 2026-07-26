@@ -167,3 +167,67 @@ systeminfo
 <img width="945" height="427" alt="image" src="https://github.com/user-attachments/assets/919f3820-168d-4312-b28b-1d009efb30cc" />
 
 
+# 🛡️ End-to-End Automated Incident Response & SOC Lab
+
+An automated Security Operations Center (SOC) lab built using **Wazuh SIEM**, **Windows 11**, and **Active Response** to detect, block, and visualize brute-force attacks in real-time.
+
+---
+
+## 📐 Architecture & Workflow
+
+```text
+[ Attacker (Kali Linux) ] 
+       │ 
+       ▼ (RDP / Auth Brute Force - Event 4625)
+[ Target (Windows 11 Agent) ] 
+       │ 
+       ▼ (Audit Log Stream via Wazuh Agent)
+[ Wazuh SIEM Manager (Ubuntu) ]
+       ├── 1. Rule Engine: Match Event 4625 (Rule 60122)
+       ├── 2. Threshold Check: >5 Failures / 60s (Custom Rule 100006)
+       ├── 3. Trigger Active Response (IP Null-Routing / Route Block)
+       └── 4. OpenSearch Dashboard (Real-time Visual Tracking)
+```
+
+🔥 Key Features
+​Advanced Event Logging: Configured Windows auditpol local security policy to capture granular authentication events (Logon Failures - Event ID 4625).
+​Custom Detection Logic: Created custom XML detection rules in Wazuh to catch frequency-based brute-force attacks (5+ attempts within 60 seconds).
+​Automated Active Response: Configured dynamic IP blocking via route null-routing upon detection of Rule 100006.
+​Visual SOC Dashboards: Built custom OpenSearch widgets (Metric Cards & Pie Charts) for monitoring total attacks blocked and top attacking IP addresses.
+
+⚙️ Configuration & Implementation
+​1. Windows Audit Policy Setup
+​Executed the following command on the Windows 11 host to capture logon failure telemetry:
+```text
+auditpol /set /subcategory:"Logon" /failure:enable
+```
+
+2. Custom Wazuh Detection Rules (/var/ossec/etc/rules/local_rules.xml)
+​Rule 60122: Base rule capturing raw Windows logon failure (Event 4625).
+​Rule 100006: Custom correlation rule triggering when 5+ failures occur within 60 seconds.
+
+<group name="windows, logon_failure, custom_bruteforce,">
+  <rule id="100006" level="10" frequency="5" timeframe="60">
+    <if_matched_sid>60122</if_matched_sid>
+    <description>Custom Detection: Multiple Windows Logon Failures detected from same IP (Brute-Force Attempt)</description>
+    <mitre>
+      <id>T1110</id>
+    </mitre>
+  </rule>
+</group>
+
+3. Active Response Integration (/var/ossec/etc/ossec.conf)
+​Automated mitigation configured to execute route-blocking upon trigger of Rule 100006:
+
+<active-response>
+  <command>route-null</command>
+  <location>local</location>
+  <rules_id>100006</rules_id>
+  <timeout>600</timeout>
+</active-response>
+
+📊 Dashboard Visualizations
+​Attacks Blocked (Metric Card): Displays live count of automated IP block triggers (Filtered by rule.id: 100006).
+​Top Attacker IPs (Pie Chart): Aggregates incoming brute-force IP addresses using data.win.eventdata.ipAddress (Filtered by rule.id: 60122).
+​Dashboard Preview:
+<img width="985" height="601" alt="WhatsApp Image 2026-07-26 at 3 38 13 PM" src="https://github.com/user-attachments/assets/19ea3a7b-ef80-4c6a-a760-8f04f004e217" />
