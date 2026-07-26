@@ -205,7 +205,7 @@ auditpol /set /subcategory:"Logon" /failure:enable
 2. Custom Wazuh Detection Rules (/var/ossec/etc/rules/local_rules.xml)
 ​Rule 60122: Base rule capturing raw Windows logon failure (Event 4625).
 ​Rule 100006: Custom correlation rule triggering when 5+ failures occur within 60 seconds.
-
+```text
 <group name="windows, logon_failure, custom_bruteforce,">
   <rule id="100006" level="10" frequency="5" timeframe="60">
     <if_matched_sid>60122</if_matched_sid>
@@ -215,16 +215,17 @@ auditpol /set /subcategory:"Logon" /failure:enable
     </mitre>
   </rule>
 </group>
-
+```
 3. Active Response Integration (/var/ossec/etc/ossec.conf)
 ​Automated mitigation configured to execute route-blocking upon trigger of Rule 100006:
-
+```text
 <active-response>
   <command>route-null</command>
   <location>local</location>
   <rules_id>100006</rules_id>
   <timeout>600</timeout>
 </active-response>
+```
 
 📊 Dashboard Visualizations
 ​Attacks Blocked (Metric Card): Displays live count of automated IP block triggers (Filtered by rule.id: 100006).
