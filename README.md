@@ -120,6 +120,7 @@ tracked for process parent-child relation.
 2. Corrected command-line syntax errors for configuration parsing (cat /etc/wazuh-indexer/wazuh-passwords.txt).
 
 3. ​Restarted core services (wazuh-manager) and verified cluster readiness.
+
 ​
 Key Takeaways & Skills Demonstrated
 
@@ -220,6 +221,7 @@ systeminfo
 
 ​4. Visual SOC Dashboards: Built custom OpenSearch widgets (Metric Cards & Pie Charts) for monitoring total attacks blocked and top attacking IP addresses.
 
+
 ​⚙️ Configuration & Implementation
 
 ​1. Windows Audit Policy Setup
@@ -276,7 +278,7 @@ auditpol /set /subcategory:"Logon" /failure:enable
 
 ​- Detect: Real-time monitoring of sensitive endpoint directories (C:\Users\Public\Downloads) for unauthorized file additions.
 
-- Remediate: Automatically purge dropped malicious payloads (e.g., EICAR test payloads) immediately upon creation without human   intervention.
+- Remediate: Automatically purge dropped malicious payloads (e.g., EICAR test payloads) immediately upon creation without human    intervention.
 
 ​- Audit: Continuously scan OS and installed applications for known vulnerabilities (CVEs).
 
