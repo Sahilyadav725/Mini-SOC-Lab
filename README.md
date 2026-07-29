@@ -34,23 +34,28 @@ The lab features a 3-tier virtualized infrastructure capturing high-fidelity **M
 ​1. Attacker Node (Kali Linux):
 
 ​RAM: 4 GB | Processors: 3 | Network: NAT
+
 <img width="537" height="552" alt="Screenshot 2026-07-22 111555" src="https://github.com/user-attachments/assets/0679ae5a-dbcc-4216-9f3d-8b0511884ee1" />
 
 ​2. SIEM Node (Wazuh Manager 4.14):
 
 ​RAM: 8 GB | Processors: 4 | Network: Bridged
+
 <img width="540" height="574" alt="Screenshot 2026-07-22 111507" src="https://github.com/user-attachments/assets/384b3e8e-cb23-467d-92de-b67ba8abfa1a" />
 
 ​3. Victim Endpoint (Windows 11 x64):
 
 ​RAM: 4 GB | Processors: 2 | Network: NAT
+
 <img width="543" height="531" alt="Screenshot 2026-07-22 150959" src="https://github.com/user-attachments/assets/7c1b85cd-f99f-4323-a617-2528b0d47f48" />
 
 ​⚙️ Telemetry Pipeline Setup
-​Sysmon Deployment: Installed Microsoft System Monitor (Sysmon) on the Windows 11 machine integrated with SwiftOnSecurity (sysmonconfig-export.xml) configuration to filter noise and capture high-fidelity process executions, network connections, and file modifications.
-​Wazuh Agent Integration: Configured the Win11-Endpoint agent (agent.id: 001, agent.ip: 192.168.241.132) to forward Microsoft-Windows-Sysmon/Operational event logs directly to the Wazuh Manager.
 
-​Pipeline Ingestion Test: Verified log streaming and parsing via the OpenSearch/Wazuh Indexer backend.
+​1. Sysmon Deployment: Installed Microsoft System Monitor (Sysmon) on the Windows 11 machine integrated with SwiftOnSecurity (sysmonconfig-export.xml) configuration to filter noise and capture high-fidelity process executions, network connections, and file modifications.
+
+​2. Wazuh Agent Integration: Configured the Win11-Endpoint agent (agent.id: 001, agent.ip: 192.168.241.132) to forward Microsoft-Windows-Sysmon/Operational event logs directly to the Wazuh Manager.
+
+​3. Pipeline Ingestion Test: Verified log streaming and parsing via the OpenSearch/Wazuh Indexer backend.
 
 ​🧪 Threat Simulation & Detection Verification
 
@@ -73,10 +78,14 @@ Ingested Hits: 55+ execution hits successfully indexed in the time histogram.
 ​<img width="982" height="597" alt="WhatsApp Image 2026-07-22 at 3 43 33 PM" src="https://github.com/user-attachments/assets/8448fa3d-6ed4-447f-ae05-0aaeef36ea2f" />
 
 ​Captured Event Artifacts & Field Parsing:
+```
 Agent Identifier: agent.name: Win11-Endpoint | agent.ip: 192.168.241.132
+```
 
 Executed Process Path:
+```
 C:\Windows\System32\net.exe and C:\Windows\SysWOW64\net.exe
+```
 
 Original File Name:
 ```
@@ -93,19 +102,23 @@ tracked for process parent-child relation.
 <img width="927" height="427" alt="WhatsApp Image 2026-07-22 at 3 45 18 PM" src="https://github.com/user-attachments/assets/da172a72-41de-4fd9-a232-90aa48d113b1" />
 
 ​🛠️ System Reliability & Troubleshooting Log
-​Issue Identified: Wazuh Indexer service failure leading to API connection refusal and authentication errors.
-​Root Cause: Java process memory starvation leading to Linux Kernel Out-Of-Memory (oom-kill) process termination.
-​Resolution Steps:
 
-​Expanded Virtual Machine memory allocation to 8 GB RAM and 4 vCPUs.
-​Corrected command-line syntax errors for configuration parsing (cat /etc/wazuh-indexer/wazuh-passwords.txt).
-​Restarted core services (wazuh-manager) and verified cluster readiness.
-​Key Takeaways & Skills Demonstrated
+​a). Issue Identified: Wazuh Indexer service failure leading to API connection refusal and authentication errors.
 
-​EDR Engineering: Configuring Sysmon schema for noise reduction and high-fidelity event generation.
-​SIEM Operations: Setting up agent-manager telemetry pipelines and performing DQL query analysis in OpenSearch.
-​Host Incident Response: Identifying process creation metadata (Event ID 1) for post-exploitation discovery detection.
-​Infrastructure Engineering: Allocating and troubleshooting virtualized SOC compute and memory requirements under heavy indexing loads.
+​b). Root Cause: Java process memory starvation leading to Linux Kernel Out-Of-Memory (oom-kill) process termination.
+
+​c). Resolution Steps:
+
+​            1. Expanded Virtual Machine memory allocation to 8 GB RAM and 4 vCPUs.
+​            2. Corrected command-line syntax errors for configuration parsing (cat /etc/wazuh-indexer/wazuh-passwords.txt).
+            3. ​Restarted core services (wazuh-manager) and verified cluster readiness.
+​
+Key Takeaways & Skills Demonstrated
+
+​1. EDR Engineering: Configuring Sysmon schema for noise reduction and high-fidelity event generation.
+​2. SIEM Operations: Setting up agent-manager telemetry pipelines and performing DQL query analysis in OpenSearch.
+​3. Host Incident Response: Identifying process creation metadata (Event ID 1) for post-exploitation discovery detection.
+​4. Infrastructure Engineering: Allocating and troubleshooting virtualized SOC compute and memory requirements under heavy indexing loads.
 
 ​🛡️ Phase 2: Detection Engineering & Rule Validation
 ​In this phase, custom detection capabilities were engineered inside Wazuh SIEM to detect early-stage adversary behavior on Windows 11 endpoints.
@@ -114,13 +127,14 @@ tracked for process parent-child relation.
 ​Detect discovery and host reconnaissance commands in real-time using Sysmon Event ID 1 (Process Creation) telemetry.
 
 ​📜 Custom Detection Rule Configuration
-​Rule ID: 100002
-​Severity Level: 10 (High)
-​Log Source: Sysmon Event ID 1
-​MITRE ATT&CK Mapping:
-​T1087 (Account Discovery)
-​T1033 (System Owner/User Discovery)
-​File Path: /var/ossec/etc/rules/local_rules.xml
+​- Rule ID: 100002
+​- Severity Level: 10 (High)
+​- Log Source: Sysmon Event ID 1
+​- MITRE ATT&CK Mapping:
+​            T1087 (Account Discovery)
+​            T1033 (System Owner/User Discovery)
+
+File Path: /var/ossec/etc/rules/local_rules.xml
 
 ```text
 <!-- Custom Reconnaissance Detection Rule for Sysmon Event ID 1 -->
@@ -137,6 +151,7 @@ tracked for process parent-child relation.
 
 🧪 Attack Simulation
 ​The following host discovery commands were executed on the target endpoint (Win11-Endpoint / 192.168.241.132):
+
 ```
 whoami
 net localgroup administrators
@@ -148,6 +163,7 @@ systeminfo
 ​📊 Verification & Proof of Concept (PoC)
 
 ​All executed commands were matched against rule 100002, producing 3 high-severity alerts on the Wazuh Dashboard.
+
 ​Triggered Rule: 100002
 ​Target Host: Win11-Endpoint
 ​Captured Execution Targets: whoami.exe, net.exe, sysinfo.exe
@@ -173,13 +189,13 @@ systeminfo
 ```
 
 🔥 Key Features
-​Advanced Event Logging: Configured Windows auditpol local security policy to capture granular authentication events (Logon Failures - Event ID 4625).
+​1. Advanced Event Logging: Configured Windows auditpol local security policy to capture granular authentication events (Logon Failures - Event ID 4625).
 
-​Custom Detection Logic: Created custom XML correlation rules in Wazuh to catch frequency-based brute-force attacks (5+ attempts within 60 seconds).
+​2. Custom Detection Logic: Created custom XML correlation rules in Wazuh to catch frequency-based brute-force attacks (5+ attempts within 60 seconds).
 
-​Automated Active Response: Configured dynamic IP blocking via route null-routing upon detection of Rule 100006.
+3. ​Automated Active Response: Configured dynamic IP blocking via route null-routing upon detection of Rule 100006.
 
-​Visual SOC Dashboards: Built custom OpenSearch widgets (Metric Cards & Pie Charts) for monitoring total attacks blocked and top attacking IP addresses.
+​4. Visual SOC Dashboards: Built custom OpenSearch widgets (Metric Cards & Pie Charts) for monitoring total attacks blocked and top attacking IP addresses.
 
 ​⚙️ Configuration & Implementation
 ​1. Windows Audit Policy Setup
@@ -203,7 +219,7 @@ auditpol /set /subcategory:"Logon" /failure:enable
 </group>
 ```
 
-4. Active Response Integration (/var/ossec/etc/ossec.conf)
+3. Active Response Integration (/var/ossec/etc/ossec.conf)
 ​Automated mitigation configured to execute route-blocking upon trigger of Rule 100006:
 ```text
 <active-response>
@@ -215,8 +231,8 @@ auditpol /set /subcategory:"Logon" /failure:enable
 ```
 
 📊 Dashboard Visualizations
-​Attacks Blocked (Metric Card): Displays live count of automated IP block triggers (Filtered by rule.id: 100006).
-​Top Attacker IPs (Pie Chart): Aggregates incoming brute-force IP addresses using data.win.eventdata.ipAddress (Filtered by rule.id: 60122).
+​1. Attacks Blocked (Metric Card): Displays live count of automated IP block triggers (Filtered by rule.id: 100006).
+​2. Top Attacker IPs (Pie Chart): Aggregates incoming brute-force IP addresses using data.win.eventdata.ipAddress (Filtered by rule.id: 60122).
 
 ​Dashboard Preview:
 <img width="985" height="601" alt="WhatsApp Image 2026-07-26 at 3 38 13 PM" src="https://github.com/user-attachments/assets/19ea3a7b-ef80-4c6a-a760-8f04f004e217" />
@@ -226,9 +242,9 @@ auditpol /set /subcategory:"Logon" /failure:enable
 ​In this phase, real-time File Integrity Monitoring (FIM) was coupled with custom Active Response scripts to automatically isolate and purge malicious file additions on the Windows endpoint. Endpoint software vulnerabilities were also continuously audited.
 
 ​🎯 Objective
-​Detect: Real-time monitoring of sensitive endpoint directories (C:\Users\Public\Downloads) for unauthorized file additions.
-​Remediate: Automatically purge dropped malicious payloads (e.g., EICAR test payloads) immediately upon creation without human intervention.
-​Audit: Continuously scan OS and installed applications for known vulnerabilities (CVEs).
+​- Detect: Real-time monitoring of sensitive endpoint directories (C:\Users\Public\Downloads) for unauthorized file additions.
+- ​Remediate: Automatically purge dropped malicious payloads (e.g., EICAR test payloads) immediately upon creation without human    intervention.
+​- Audit: Continuously scan OS and installed applications for known vulnerabilities (CVEs).
 
 ​⚙️ Configuration & Implementation
 ​1. Real-Time FIM Setup (ossec.conf on Windows Agent)
@@ -266,10 +282,10 @@ del /f /q "C:\Users\Public\Downloads\eicar*"
 
 🧪 Attack Simulation & SOAR Remediation Workflow
 
-​Created an unauthorized test payload (eicar.txt) inside C:\Users\Public\Downloads.
-​Real-time FIM detected the file addition and generated Rule 554 alert on the Wazuh Server.
-​Wazuh Manager instantly dispatched the remove-threat.cmd active response command back to Win11-Endpoint.
-​The target file was automatically purged within seconds, bringing Mean Time to Respond (MTTR) to near zero.
+​1. Created an unauthorized test payload (eicar.txt) inside C:\Users\Public\Downloads.
+​2. Real-time FIM detected the file addition and generated Rule 554 alert on the Wazuh Server.
+​3. Wazuh Manager instantly dispatched the remove-threat.cmd active response command back to Win11-Endpoint.
+​4. The target file was automatically purged within seconds, bringing Mean Time to Respond (MTTR) to near zero.
 
 ​📊 Verification & Proof of Concept (PoC)
 
@@ -288,10 +304,11 @@ del /f /q "C:\Users\Public\Downloads\eicar*"
 ​🔹 3. Live Server Log Execution (Rule 554 Trigger)
 ​Wazuh Manager live terminal output demonstrating real-time Rule 554 matching upon file creation.
 
-<img width="1280" height="800" alt="WhatsApp Image 2026-07-29 at 2 21 40 PM" src="https://github.com/user-attachments/assets/1ddc4fbe-7677-4fef-8352-85a5da93a2d5" />
+<img width="1600" height="603" alt="WhatsApp Image 2026-07-29 at 3 12 22 PM" src="https://github.com/user-attachments/assets/56a17a2e-dbfe-43c2-9fbb-0382234bc62b" />
+
 
 ​🎓 Key Technical Takeaways & Skills Demonstrated
-​Active Response Engineering: Built custom SOAR remediation scripts interfacing with Wazuh Manager rule triggers.
-​File Integrity Monitoring (FIM): Implemented real-time directory watching (realtime="yes") for critical endpoint download paths.
-​Automated Threat Containment: Successfully reduced Mean Time to Respond (MTTR) by enabling instant file deletion on alert generation.
-​Vulnerability Assessment: Conducted automated CVE discovery to evaluate endpoint risk posture.
+​1. Active Response Engineering: Built custom SOAR remediation scripts interfacing with Wazuh Manager rule triggers.
+2. ​File Integrity Monitoring (FIM): Implemented real-time directory watching (realtime="yes") for critical endpoint download paths.
+​3. Automated Threat Containment: Successfully reduced Mean Time to Respond (MTTR) by enabling instant file deletion on alert generation.
+​4. Vulnerability Assessment: Conducted automated CVE discovery to evaluate endpoint risk posture.
