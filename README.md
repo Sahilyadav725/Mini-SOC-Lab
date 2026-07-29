@@ -31,11 +31,13 @@ The lab features a 3-tier virtualized infrastructure capturing high-fidelity **M
 ```
 
 💻 Virtual Machine Allocations (VMware Workstation)
+
 ​1. Attacker Node (Kali Linux):
 
 ​RAM: 4 GB | Processors: 3 | Network: NAT
 
 <img width="537" height="552" alt="Screenshot 2026-07-22 111555" src="https://github.com/user-attachments/assets/0679ae5a-dbcc-4216-9f3d-8b0511884ee1" />
+
 
 ​2. SIEM Node (Wazuh Manager 4.14):
 
@@ -43,11 +45,13 @@ The lab features a 3-tier virtualized infrastructure capturing high-fidelity **M
 
 <img width="540" height="574" alt="Screenshot 2026-07-22 111507" src="https://github.com/user-attachments/assets/384b3e8e-cb23-467d-92de-b67ba8abfa1a" />
 
+
 ​3. Victim Endpoint (Windows 11 x64):
 
 ​RAM: 4 GB | Processors: 2 | Network: NAT
 
 <img width="543" height="531" alt="Screenshot 2026-07-22 150959" src="https://github.com/user-attachments/assets/7c1b85cd-f99f-4323-a617-2528b0d47f48" />
+
 
 ​⚙️ Telemetry Pipeline Setup
 
@@ -69,12 +73,14 @@ net localgroup administrators
 <img width="837" height="401" alt="WhatsApp Image 2026-07-22 at 3 34 05 PM" src="https://github.com/user-attachments/assets/042450e3-657c-4231-93d8-87ddccd7aea5" />
 
 SIEM Telemetry & Log Analysis
+
 ​Inside the Wazuh Dashboard (Discover Module), applied DQL filtering to isolate Sysmon Process Creation events:
 ```text
 data.win.system.eventID: "1"
 ```
 
 Ingested Hits: 55+ execution hits successfully indexed in the time histogram.
+
 ​<img width="982" height="597" alt="WhatsApp Image 2026-07-22 at 3 43 33 PM" src="https://github.com/user-attachments/assets/8448fa3d-6ed4-447f-ae05-0aaeef36ea2f" />
 
 ​Captured Event Artifacts & Field Parsing:
@@ -109,11 +115,11 @@ tracked for process parent-child relation.
 
 ​c). Resolution Steps:
 
-​            1. Expanded Virtual Machine memory allocation to 8 GB RAM and 4 vCPUs.
+1. Expanded Virtual Machine memory allocation to 8 GB RAM and 4 vCPUs.
 
-​            2. Corrected command-line syntax errors for configuration parsing (cat /etc/wazuh-indexer/wazuh-passwords.txt).
+2. Corrected command-line syntax errors for configuration parsing (cat /etc/wazuh-indexer/wazuh-passwords.txt).
 
-            3. ​Restarted core services (wazuh-manager) and verified cluster readiness.
+3. ​Restarted core services (wazuh-manager) and verified cluster readiness.
 ​
 Key Takeaways & Skills Demonstrated
 
@@ -126,9 +132,11 @@ Key Takeaways & Skills Demonstrated
 ​4. Infrastructure Engineering: Allocating and troubleshooting virtualized SOC compute and memory requirements under heavy indexing loads.
 
 ​🛡️ Phase 2: Detection Engineering & Rule Validation
+
 ​In this phase, custom detection capabilities were engineered inside Wazuh SIEM to detect early-stage adversary behavior on Windows 11 endpoints.
 
 ​🎯 Objective
+
 ​Detect discovery and host reconnaissance commands in real-time using Sysmon Event ID 1 (Process Creation) telemetry.
 
 ​📜 Custom Detection Rule Configuration
@@ -161,6 +169,7 @@ File Path: /var/ossec/etc/rules/local_rules.xml
 ```
 
 🧪 Attack Simulation
+
 ​The following host discovery commands were executed on the target endpoint (Win11-Endpoint / 192.168.241.132):
 
 ```
@@ -183,7 +192,9 @@ systeminfo
 ​<img width="945" height="427" alt="image" src="https://github.com/user-attachments/assets/919f3820-168d-4312-b28b-1d009efb30cc" />
 
 ​🛡️ Phase 3: Automated Incident Response (Brute-Force Blocking)
+
 ​An automated response system configured using Wazuh Active Response to detect and block RDP/authentication brute-force attacks in real-time.
+
 ​📐 Architecture & Workflow
 ```text
 [ Attacker (Kali Linux) ] 
@@ -200,6 +211,7 @@ systeminfo
 ```
 
 🔥 Key Features
+
 ​1. Advanced Event Logging: Configured Windows auditpol local security policy to capture granular authentication events (Logon Failures - Event ID 4625).
 
 ​2. Custom Detection Logic: Created custom XML correlation rules in Wazuh to catch frequency-based brute-force attacks (5+ attempts within 60 seconds).
@@ -209,15 +221,19 @@ systeminfo
 ​4. Visual SOC Dashboards: Built custom OpenSearch widgets (Metric Cards & Pie Charts) for monitoring total attacks blocked and top attacking IP addresses.
 
 ​⚙️ Configuration & Implementation
+
 ​1. Windows Audit Policy Setup
+
 ​Executed the following command on the Windows 11 host to capture logon failure telemetry:
 ```
 auditpol /set /subcategory:"Logon" /failure:enable
 ```
 
 2. Custom Wazuh Detection Rules (/var/ossec/etc/rules/local_rules.xml)
+
 ​Rule 60122: Base rule capturing raw Windows logon failure (Event 4625).
 ​Rule 100006: Custom correlation rule triggering when 5+ failures occur within 60 seconds.
+
 ```text
 <group name="windows, logon_failure, custom_bruteforce,">
   <rule id="100006" level="10" frequency="5" timeframe="60">
@@ -231,6 +247,7 @@ auditpol /set /subcategory:"Logon" /failure:enable
 ```
 
 3. Active Response Integration (/var/ossec/etc/ossec.conf)
+
 ​Automated mitigation configured to execute route-blocking upon trigger of Rule 100006:
 ```text
 <active-response>
@@ -252,19 +269,21 @@ auditpol /set /subcategory:"Logon" /failure:enable
 
 
 ​🛡️ Phase 4: File Integrity Monitoring (FIM), Automated Remediation & Vulnerability Assessment
+
 ​In this phase, real-time File Integrity Monitoring (FIM) was coupled with custom Active Response scripts to automatically isolate and purge malicious file additions on the Windows endpoint. Endpoint software vulnerabilities were also continuously audited.
 
 ​🎯 Objective
 
 ​- Detect: Real-time monitoring of sensitive endpoint directories (C:\Users\Public\Downloads) for unauthorized file additions.
 
-- ​Remediate: Automatically purge dropped malicious payloads (e.g., EICAR test payloads) immediately upon creation without human    intervention.
+- Remediate: Automatically purge dropped malicious payloads (e.g., EICAR test payloads) immediately upon creation without human   intervention.
 
 ​- Audit: Continuously scan OS and installed applications for known vulnerabilities (CVEs).
 
 ​⚙️ Configuration & Implementation
 
 ​1. Real-Time FIM Setup (ossec.conf on Windows Agent)
+
 ​Configured real-time directory auditing under the <syscheck> block in C:\Program Files (x86)\ossec-agent\ossec.conf:
 ```
 <syscheck>
@@ -273,6 +292,7 @@ auditpol /set /subcategory:"Logon" /failure:enable
 ```
 
 2. Automated Active Response Configuration (/var/ossec/etc/ossec.conf on Manager)
+
 ​Defined custom command and response mapping targeting FIM Rule 554 (File added to the system):
 ```text
 <!-- Active Response Command Definition -->
@@ -291,6 +311,7 @@ auditpol /set /subcategory:"Logon" /failure:enable
 ```
 
 3. Endpoint Remediation Executable (remove-threat.cmd on Endpoint)
+
 ​Created custom batch execution script deployed in C:\Program Files (x86)\ossec-agent\active-response\bin\remove-threat.cmd:
 ```
 @echo off
