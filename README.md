@@ -110,14 +110,19 @@ tracked for process parent-child relation.
 ​c). Resolution Steps:
 
 ​            1. Expanded Virtual Machine memory allocation to 8 GB RAM and 4 vCPUs.
+
 ​            2. Corrected command-line syntax errors for configuration parsing (cat /etc/wazuh-indexer/wazuh-passwords.txt).
+
             3. ​Restarted core services (wazuh-manager) and verified cluster readiness.
 ​
 Key Takeaways & Skills Demonstrated
 
 ​1. EDR Engineering: Configuring Sysmon schema for noise reduction and high-fidelity event generation.
+
 ​2. SIEM Operations: Setting up agent-manager telemetry pipelines and performing DQL query analysis in OpenSearch.
+
 ​3. Host Incident Response: Identifying process creation metadata (Event ID 1) for post-exploitation discovery detection.
+
 ​4. Infrastructure Engineering: Allocating and troubleshooting virtualized SOC compute and memory requirements under heavy indexing loads.
 
 ​🛡️ Phase 2: Detection Engineering & Rule Validation
@@ -127,11 +132,17 @@ Key Takeaways & Skills Demonstrated
 ​Detect discovery and host reconnaissance commands in real-time using Sysmon Event ID 1 (Process Creation) telemetry.
 
 ​📜 Custom Detection Rule Configuration
+
 ​- Rule ID: 100002
+
 ​- Severity Level: 10 (High)
+
 ​- Log Source: Sysmon Event ID 1
+
 ​- MITRE ATT&CK Mapping:
+
 ​            T1087 (Account Discovery)
+
 ​            T1033 (System Owner/User Discovery)
 
 File Path: /var/ossec/etc/rules/local_rules.xml
@@ -231,7 +242,9 @@ auditpol /set /subcategory:"Logon" /failure:enable
 ```
 
 📊 Dashboard Visualizations
+
 ​1. Attacks Blocked (Metric Card): Displays live count of automated IP block triggers (Filtered by rule.id: 100006).
+
 ​2. Top Attacker IPs (Pie Chart): Aggregates incoming brute-force IP addresses using data.win.eventdata.ipAddress (Filtered by rule.id: 60122).
 
 ​Dashboard Preview:
@@ -242,11 +255,15 @@ auditpol /set /subcategory:"Logon" /failure:enable
 ​In this phase, real-time File Integrity Monitoring (FIM) was coupled with custom Active Response scripts to automatically isolate and purge malicious file additions on the Windows endpoint. Endpoint software vulnerabilities were also continuously audited.
 
 ​🎯 Objective
+
 ​- Detect: Real-time monitoring of sensitive endpoint directories (C:\Users\Public\Downloads) for unauthorized file additions.
+
 - ​Remediate: Automatically purge dropped malicious payloads (e.g., EICAR test payloads) immediately upon creation without human    intervention.
+
 ​- Audit: Continuously scan OS and installed applications for known vulnerabilities (CVEs).
 
 ​⚙️ Configuration & Implementation
+
 ​1. Real-Time FIM Setup (ossec.conf on Windows Agent)
 ​Configured real-time directory auditing under the <syscheck> block in C:\Program Files (x86)\ossec-agent\ossec.conf:
 ```
@@ -283,8 +300,11 @@ del /f /q "C:\Users\Public\Downloads\eicar*"
 🧪 Attack Simulation & SOAR Remediation Workflow
 
 ​1. Created an unauthorized test payload (eicar.txt) inside C:\Users\Public\Downloads.
+
 ​2. Real-time FIM detected the file addition and generated Rule 554 alert on the Wazuh Server.
+
 ​3. Wazuh Manager instantly dispatched the remove-threat.cmd active response command back to Win11-Endpoint.
+
 ​4. The target file was automatically purged within seconds, bringing Mean Time to Respond (MTTR) to near zero.
 
 ​📊 Verification & Proof of Concept (PoC)
@@ -308,7 +328,11 @@ del /f /q "C:\Users\Public\Downloads\eicar*"
 
 
 ​🎓 Key Technical Takeaways & Skills Demonstrated
+
 ​1. Active Response Engineering: Built custom SOAR remediation scripts interfacing with Wazuh Manager rule triggers.
+
 2. ​File Integrity Monitoring (FIM): Implemented real-time directory watching (realtime="yes") for critical endpoint download paths.
+
 ​3. Automated Threat Containment: Successfully reduced Mean Time to Respond (MTTR) by enabling instant file deletion on alert generation.
+
 ​4. Vulnerability Assessment: Conducted automated CVE discovery to evaluate endpoint risk posture.
